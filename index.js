@@ -8,7 +8,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://charlie-form.vercel.app/"],
     credentials: true,
   }),
 );
@@ -22,6 +22,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/form", formRoutes);
 
-app.listen(3000, () => {
-  console.log("Serveur démarré avec succès sur http://localhost:3000");
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Serveur démarré avec succès sur le port ${port}`);
 });
