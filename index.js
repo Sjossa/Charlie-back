@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/form", formRoutes);
 
-const port = process.env.PORT || 3000;
+const port = process.env.DB_PORT || 3000;
 app.listen(port, () => {
   console.log(`Serveur démarré avec succès sur le port ${port}`);
 });
