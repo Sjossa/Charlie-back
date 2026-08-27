@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { db } from "../config/database.js";
 
 export async function inscription(req, res) {
-  const { email, password } = req.body;
+  const { email, password, pseudo } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ error: "Email et mot de passe requis" });
@@ -15,9 +15,9 @@ export async function inscription(req, res) {
 
     console.log("Mot de passe haché avec succès :", hash);
 
-    const sql = "INSERT INTO users (email, password) VALUES (?, ?)";
+    const sql = "INSERT INTO users (email, password ,pseudo) VALUES (?, ?,?)";
 
-    db.query(sql, [email, hash], (err, result) => {
+    db.query(sql, [email, hash, pseudo], (err, result) => {
       if (err) {
         console.error("Erreur DB :", err);
         return res.status(500).json({ error: "Erreur lors de l'inscription" });
@@ -31,15 +31,15 @@ export async function inscription(req, res) {
 }
 
 export async function connexion(req, res) {
-  const { email, password } = req.body;
+  const { pseudo, password } = req.body;
 
-  if (!email || !password) {
+  if (!pseudo || !password) {
     return res.status(400).json({ error: "Email et mot de passe requis." });
   }
 
-  const sql = "SELECT * FROM users WHERE email = ?";
+  const sql = "SELECT * FROM users WHERE pseudo = ?";
 
-  db.query(sql, [email], async (err, results) => {
+  db.query(sql, [pseudo], async (err, results) => {
     if (err) {
       console.error("Erreur DB :", err);
       return res.status(500).json({ error: "Erreur serveur interne." });
@@ -59,7 +59,7 @@ export async function connexion(req, res) {
       if (!match) {
         return res
           .status(401)
-          .json({ error: "Email ou mot de passe incorrect." });
+          .json({ error: "Pseudo ou mot de passe incorrect." });
       }
 
       const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, {
@@ -68,9 +68,9 @@ export async function connexion(req, res) {
 
       res.cookie("accessToken", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // <-- Ici
-        sameSite: "lax",
-        maxAge: 15 * 60 * 1000,
+        secure: process.env.NODE_ENV === "production" ? true : false,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 24 * 60 * 60 * 1000,
       });
 
       res.json({
