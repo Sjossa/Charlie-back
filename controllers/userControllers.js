@@ -27,8 +27,6 @@ export async function meDonnée(req, res) {
           })),
       };
 
-      console.log(userData);
-
       res.json({ user: userData });
     });
   } catch (error) {
